@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:title" content="Mill Data: manufacturing data for physical AI">
+<meta property="og:description" content="Data from the floor, not the lab. Egocentric video from real shop floors across Latin America, labeled and ready to train on.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og.jpg">
+<meta name="theme-color" content="#111411">
+<style>html{background:#F1EDE2}body{margin:0}</style>
+</head>
+<body>
+<title>Mill Data</title>
+<meta name="description" content="Mill Data records real manufacturing work on real shop floors across Latin America and delivers it as labeled training data for physical AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a spec sheet for a factory. Mono titles, hairline grid, numbered stations, one hot accent. Three looks share the structure: Floor (paper, deep green, orange), Terminal (dark green console), Signal (near-black, soft panels). */
+:root{
+  --bg:#F1EDE2; --bg2:#E6E0D0; --panel:#FAF7EF; --ink:#111411; --ink2:#575C55; --line:rgba(17,20,17,.2);
+  --accent:#C8F52A; --on-accent:#111411; --accent-ink:#111411; --mint:#111411;
+  --band:#111411; --band-ink:#F1EDE2; --band-ink2:#B5B8AE; --band-line:rgba(241,237,226,.2); --band-panel:rgba(241,237,226,.05); --band-accent:#C8F52A;
+  --display:"Geist","Helvetica Neue",Arial,sans-serif;
+  --body:"Geist","Helvetica Neue",Arial,sans-serif;
+  --mono:"Geist Mono","IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --dw:500; --dt:-.035em; --r:4px; --glow:none;
+  --wrap:1200px; --gut:clamp(16px,4vw,40px);
+  color-scheme:light;
+}
+:root[data-style="volt"]{--accent:#EEFF00; --band-accent:#EEFF00; --band:#0F0F0F}
+:root[data-style="blue"]{--accent:#2A3CFF; --on-accent:#FFFFFF; --accent-ink:#2A3CFF; --band:#10134A; --band-accent:#A9B2FF; --band-ink2:#B4B9E6}
+:root[data-style="pink"]{--accent:#FF2D8A; --on-accent:#17060D; --accent-ink:#DB0F6C; --band:#1B0A12; --band-accent:#FF6AAB; --band-ink2:#C9B3BC}
+:root[data-style="orange"]{--accent:#FF5A00; --on-accent:#160A03; --accent-ink:#DD4B00; --band:#15120F; --band-accent:#FF7F33}
+:root[data-style="aqua"]{--accent:#16E0C2; --on-accent:#05201C; --accent-ink:#05201C; --band:#06231F; --band-accent:#16E0C2; --band-ink2:#A9C4BE}
+:root[data-style="violet"]{--accent:#8A3DFF; --on-accent:#FFFFFF; --accent-ink:#7426F0; --band:#170B2E; --band-accent:#C09BFF; --band-ink2:#BDB2D2}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+h1,h2,h3,p,ul,dl,dd{margin:0}
+ul{padding:0;list-style:none}
+h1,h2,h3{font-family:var(--display);font-weight:var(--dw);letter-spacing:var(--dt);line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(2.4rem,6.2vw,5.2rem)}
+h2{font-size:clamp(1.8rem,3.8vw,3rem)}
+h3{font-size:1.2rem;letter-spacing:-.02em;line-height:1.2}
+em{font-style:normal;background:var(--accent);color:var(--on-accent);padding:0 .14em;border-radius:var(--r);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gut)}
+.lede{color:var(--ink2);font-size:1.1rem;max-width:60ch}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--r);border:1px solid var(--line);font-family:var(--mono);font-size:.8rem;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
+.btn.hot{background:var(--accent);border-color:var(--accent-ink);color:var(--on-accent);font-weight:600}
+.btn:hover{border-color:var(--accent-ink)}
+.btn.hot:hover{filter:brightness(1.08)}
+/* top */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:20px;min-height:62px}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--mono);font-weight:600;font-size:1.25rem;letter-spacing:-.03em;white-space:nowrap}
+.brand svg{width:30px;height:30px;flex:none}
+.nav{display:flex;gap:22px;margin-left:auto}
+.nav a{text-decoration:none;color:var(--ink2);font-size:.92rem}
+.nav a:hover{color:var(--ink)}
+.top .btn{padding:9px 14px}
+@media (max-width:860px){.nav{display:none}.top .btn{margin-left:auto}}
+/* hero */
+.hero{border-bottom:1px solid var(--line);background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 56px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/56px 100%;background-color:var(--bg)}
+.hero-in{background:radial-gradient(ellipse at 30% 40%,var(--bg) 35%,color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(28px,5vw,64px);align-items:center;padding-block:clamp(56px,9vw,120px)}
+@media (max-width:920px){.hero .wrap{grid-template-columns:1fr}}
+.hero .wrap.fw{display:block;padding-block:0}
+.hero-copy{display:grid;gap:22px;min-width:0}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--mint)}
+.eyebrow::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 1px var(--ink);animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.25}}
+.hero p.sub{color:var(--ink2);font-size:1.15rem;max-width:54ch}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.session{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--glow);min-width:0;overflow:hidden}
+.session .bar{display:flex;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink2)}
+.session dl{display:grid}
+.session dl>div{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.8rem}
+.session dl>div:last-child{border-bottom:0}
+.session dt{color:var(--ink2)}
+.session dd b{background:var(--accent);color:var(--on-accent);font-weight:500;padding:1px 6px;border-radius:2px}
+.session dd i{font-style:normal;color:var(--mint)}
+.meter{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:54px;padding:12px 14px;border-top:1px solid var(--line)}
+.meter span{background:var(--mint);opacity:.75;border-radius:1px}
+.meter span:nth-child(3n){background:var(--accent);opacity:1;box-shadow:0 0 0 1px var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line)}
+.facts>div{padding:18px 16px 22px 0;border-right:1px solid var(--line)}
+.facts>div+div{padding-left:16px}
+.facts>div:last-child{border-right:0}
+.facts .mono{color:var(--ink2)}
+.facts strong{display:block;margin-top:6px;font-family:var(--display);font-weight:var(--dw);letter-spacing:-.03em;font-size:1.15rem;line-height:1.2}
+@media (max-width:760px){.facts{grid-template-columns:1fr 1fr}.facts>div:nth-child(2){border-right:0}.facts>div:nth-child(3){padding-left:0}.facts>div:nth-child(n+3){border-top:1px solid var(--line)}}
+/* sections */
+.sec{padding-block:clamp(60px,8vw,112px);border-bottom:1px solid var(--line)}
+.sec.alt{background:var(--bg2)}
+.sec.band{background:var(--band);color:var(--band-ink);--ink:var(--band-ink);--ink2:var(--band-ink2);--line:var(--band-line);--panel:var(--band-panel);--mint:var(--band-ink);--accent-ink:var(--band-accent)}
+.head{display:grid;gap:14px;margin-bottom:clamp(30px,4vw,52px)}
+.head .mono{color:var(--accent-ink)}
+/* catalog */
+.cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.st{background:var(--panel);padding:22px 22px 24px;display:grid;gap:14px;align-content:start;min-width:0}
+.st header{display:grid;gap:8px}
+.st .code{color:var(--accent-ink)}
+.st header p{color:var(--ink2);font-size:.95rem}
+.st li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:.96rem}
+.st li span{font-family:var(--mono);font-size:.7rem;color:var(--ink2);padding-top:4px}
+.note{margin-top:16px;color:var(--ink2);font-size:.92rem}
+/* why */
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:10px;align-content:start;min-width:0}
+.card .mono{color:var(--accent-ink)}
+.card p{color:var(--ink2);font-size:.97rem}
+/* signals */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{text-align:left;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500;color:var(--ink2);padding:12px 16px;border-bottom:1px solid var(--line)}
+td{padding:16px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.97rem}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);font-size:.76rem;color:var(--accent-ink);width:64px}
+td.nm{font-family:var(--display);font-weight:var(--dw);letter-spacing:-.03em;font-size:1.08rem;width:26%}
+.tag{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:999px;white-space:nowrap}
+.tag.on{background:var(--accent);border-color:var(--accent-ink);color:var(--on-accent);font-weight:600}
+/* process */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:2px solid var(--ink)}
+.step{padding:20px 20px 0 0;display:grid;gap:10px;align-content:start;position:relative}
+.step+.step{padding-left:20px;border-left:1px solid var(--line)}
+.step .n{font-family:var(--display);font-weight:var(--dw);font-size:2.4rem;letter-spacing:-.05em;line-height:1;color:var(--accent-ink)}
+.step p{color:var(--ink2);font-size:.97rem}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}.step:nth-child(3){padding-left:0;border-left:0}.step:nth-child(n+3){border-top:1px solid var(--line);margin-top:20px}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}.step+.step{padding-left:0;border-left:0;border-top:1px solid var(--line);margin-top:20px}}
+/* manifest */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+.layers li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;padding:16px 0;border-top:1px solid var(--line)}
+.layers li>span{font-family:var(--mono);font-size:.74rem;color:var(--accent-ink);padding-top:4px}
+.layers p{color:var(--ink2);font-size:.96rem;margin-top:4px}
+.file{border:1px solid var(--line);border-radius:var(--r);background:color-mix(in srgb,#000 22%,var(--band));overflow:auto;min-width:0}
+.file .bar{display:flex;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink2)}
+.file pre{margin:0;padding:16px 14px;font-family:var(--mono);font-size:.76rem;line-height:1.75;white-space:pre;color:var(--ink)}
+.file .k{color:var(--ink2)}.file .s{color:var(--accent-ink)}
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.trust>div{background:var(--panel);padding:22px;display:grid;gap:8px;align-content:start}
+.trust .mono{color:var(--accent-ink)}
+.trust p{color:var(--ink2);font-size:.96rem}
+/* call */
+.callc{display:grid;gap:20px;min-width:0}
+.callc dl{border-top:2px solid var(--ink);margin-top:6px}
+.callc dl>div{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.callc dt{color:var(--ink2)}
+.cal{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff;min-width:0;box-shadow:var(--glow)}
+.cal .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:var(--panel);color:var(--ink);border-bottom:1px solid var(--line)}
+.cal iframe{display:block;width:100%;height:600px;border:0;background:#fff}
+/* faq */
+.faq{border-top:2px solid var(--ink)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:64px minmax(0,1fr) 24px;gap:12px;align-items:baseline;padding:18px 0}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary span:first-child{font-family:var(--mono);font-size:.74rem;color:var(--accent-ink)}
+.faq summary b{font-family:var(--display);font-weight:var(--dw);letter-spacing:-.03em;font-size:1.12rem;line-height:1.25}
+.faq summary i{font-style:normal;font-family:var(--mono);transition:transform .2s}
+.faq details[open] summary i{transform:rotate(45deg);color:var(--accent-ink)}
+.faq details p{padding:0 36px 20px 76px;color:var(--ink2);max-width:calc(64ch + 76px)}
+@media (max-width:560px){.faq summary{grid-template-columns:minmax(0,1fr) 24px}.faq summary span:first-child{display:none}.faq details p{padding:0 0 18px}}
+/* about */
+.about{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,5vw,72px);align-items:start}
+@media (max-width:860px){.about{grid-template-columns:1fr}}
+.about p{color:var(--ink2);font-size:1.08rem;max-width:60ch}
+.about a{color:var(--accent-ink)}
+/* footer */
+footer{background:var(--band);color:var(--band-ink);overflow:hidden;--accent-ink:var(--band-accent)}
+footer .wrap{padding-block:36px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+footer .links{display:flex;gap:20px;flex-wrap:wrap;color:var(--band-ink2);font-size:.92rem}
+footer .links a{text-decoration:none}
+footer .fine{flex-basis:100%;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--band-ink2);border-top:1px solid var(--band-line);padding-top:16px}
+.giant{margin:clamp(30px,5vw,64px) 0 -.3em;font-family:var(--mono);font-weight:600;font-size:15.2vw;line-height:1;letter-spacing:-.06em;white-space:nowrap;text-align:center;color:color-mix(in srgb,var(--band-ink) 11%,transparent);user-select:none;padding-bottom:84px}
+/* wordmark */
+.brand .sl{color:#111411;background:var(--accent);color:var(--accent-ink);padding:0 .14em;margin:0 .07em;box-shadow:0 0 0 1.5px var(--ink,#111411)}
+footer .brand .sl{box-shadow:none;color:#111411}
+.giant .sl{color:var(--accent)}
+.brand.wm{font-family:'Geist',var(--sans,sans-serif);font-weight:500;font-size:1.5rem;letter-spacing:-.045em;gap:0}
+.brand .sq{display:inline-flex;align-items:center;justify-content:center;width:1.3em;height:1.3em;background:var(--accent);color:#111411;border-radius:.2em;margin-right:.36em;font:600 1em 'Geist Mono',monospace;box-shadow:0 0 0 1.5px #111411}
+footer .brand .sq{box-shadow:none}
+/* style picker */
+.styles{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:4px;padding:5px;background:#0B0C0D;border:1px solid #4a4a4a;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100vw - 24px)}
+.styles span{font:500 11px/1 ui-monospace,Menlo,monospace;color:#aaa;padding:0 8px;text-transform:uppercase;letter-spacing:.08em}
+.styles button{font:500 12px/1 ui-monospace,Menlo,monospace;color:#eee;background:none;border:0;border-radius:999px;padding:9px 12px;cursor:pointer;white-space:nowrap}
+.styles button{display:inline-flex;align-items:center;gap:6px}
+.styles button i{width:12px;height:12px;border-radius:50%;border:1px solid #777}
+.styles button[aria-pressed="true"]{background:#F1EDE2;color:#0B0C0D}
+@media (max-width:760px){.styles span{display:none}.styles button{padding:8px;font-size:0;gap:0}.styles button i{width:18px;height:18px}}
+</style>
+
+<header class="top"><div class="wrap">
+  <a class="brand wm" href="#top" aria-label="Mill Data home"><span class="sq">/</span>milldata</a>
+  <nav class="nav" aria-label="Sections"><a href="#catalog">Tasks</a><a href="#signals">Signals</a><a href="#process">Process</a><a href="#faq">FAQ</a><a href="#about">About</a></nav>
+  <a class="btn hot" href="#call">Book a call</a>
+</div></header>
+<main id="top">
+<style>
+.hero{position:relative;overflow:hidden;background:#111411;color:#F1EDE2;--ink:#F1EDE2;--ink2:#cfccc2;--line:rgba(241,237,226,.24);--panel:rgba(17,20,17,.62);--mint:#F1EDE2}
+.hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08);z-index:0}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(17,20,17,.88) 0%,rgba(17,20,17,.66) 55%,rgba(17,20,17,.42) 100%)}
+.hero-in{position:relative;z-index:2;background:none}
+.hero .session{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hero .btn:not(.hot){color:#F1EDE2;background:rgba(17,20,17,.35)}
+#why{position:relative;overflow:hidden}
+#why::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(17,20,17,.8),rgba(17,20,17,.62) 45%,rgba(17,20,17,.86))}
+#why>.wrap{position:relative;z-index:2}
+#why .card{background:rgba(17,20,17,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+/* process animation */
+.steps{position:relative}
+.steps::before{content:"";position:absolute;left:0;top:-5px;height:8px;width:0;background:var(--accent);box-shadow:0 0 0 1.5px #111411;z-index:2}
+.steps.run::before{animation:runbar 10s linear infinite}
+@keyframes runbar{0%{width:0}88%{width:100%}100%{width:100%}}
+.step .n{justify-self:start;padding:.04em .14em;margin-left:-.14em;border-radius:3px;transition:background .35s,color .35s,transform .35s}
+.step h3,.step p{transition:opacity .35s}
+.steps.run .step:not(.on) h3,.steps.run .step:not(.on) p{opacity:.45}
+.steps.run .step.on .n{background:var(--accent);color:#111411;transform:translateY(-2px)}
+.step h3::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 1px #111411;margin-left:10px;vertical-align:middle;opacity:0}
+.steps.run .step.on h3::after{opacity:1;animation:rec 1.2s ease-in-out infinite}
+@media (max-width:860px){.steps::before{display:none}}
+@media (prefers-reduced-motion:reduce){.hv{display:none}.hero{background:#111411 url(hero.jpg) center/cover}#why{background:#111411 url(garage.jpg) center/cover}.steps.run::before{animation:none;width:100%}.steps.run .step h3,.steps.run .step p{opacity:1!important}}
+</style><section class="hero"><video class="hv" autoplay muted loop playsinline poster="hero.jpg" aria-hidden="true"><source src="hero.mp4" type="video/mp4"></video><div class="hero-in"><div class="wrap">
+  <div class="hero-copy">
+    <span class="mono eyebrow">Shift 01 &middot; Manufacturing data for physical AI</span>
+    <h1>Data from the floor, <em>not the lab.</em></h1>
+    <p class="sub">Mill Data sends cameras onto real shop floors across Latin America. Welders, machinists, assemblers and mechanics record the job the way they actually do it. You get the footage labeled and ready to train on.</p>
+    <div class="acts"><a class="btn hot" href="#call">Book a call &rarr;</a><a class="btn" href="#catalog">See the task catalog</a></div>
+  </div>
+  <div class="session" aria-label="Example capture session">
+    <div class="bar mono"><span>session_0412 &middot; example</span><span>&#9679; REC</span></div>
+    <dl>
+      <div><dt>station</dt><dd>ST-02 Metal fabrication</dd></div>
+      <div><dt>task</dt><dd>02.02 Welding</dd></div>
+      <div><dt>operator</dt><dd>MIG welder, 9 yrs</dd></div>
+      <div><dt>signals</dt><dd><i>video</i> + <i>imu</i> + <i>audio</i></dd></div>
+      <div><dt>ppe</dt><dd>helmet, gloves, apron</dd></div>
+      <div><dt>status</dt><dd><b>recording</b> &middot; 00:41:07</dd></div>
+    </dl>
+    <div class="meter" aria-hidden="true"><span style="height:30%"></span><span style="height:52%"></span><span style="height:44%"></span><span style="height:70%"></span><span style="height:38%"></span><span style="height:88%"></span><span style="height:60%"></span><span style="height:42%"></span><span style="height:76%"></span><span style="height:50%"></span><span style="height:34%"></span><span style="height:92%"></span><span style="height:64%"></span><span style="height:48%"></span><span style="height:72%"></span><span style="height:40%"></span><span style="height:84%"></span><span style="height:56%"></span><span style="height:36%"></span><span style="height:68%"></span><span style="height:46%"></span><span style="height:80%"></span><span style="height:58%"></span><span style="height:32%"></span></div>
+  </div>
+</div>
+<div class="wrap fw"><div class="facts">
+  <div><span class="mono">Stations</span><strong>6 kinds of shop</strong></div>
+  <div><span class="mono">Catalog</span><strong>36 recorded tasks</strong></div>
+  <div><span class="mono">Viewpoint</span><strong>Egocentric, hands in frame</strong></div>
+  <div><span class="mono">Region</span><strong>Latin America</strong></div>
+</div></div></div></section>
+
+<section class="sec" id="catalog"><div class="wrap">
+  <div class="head"><span class="mono">MD-100 &middot; Task catalog</span><h2>What runs on our floor</h2><p class="lede">Six shops, thirty-six jobs. Recorded by the people who clock in to do them, on machines with a few years on them.</p></div>
+  <div class="cat"><article class="st"><header><span class="mono code">ST-01</span><h3>Plastics &amp; light assembly</h3><p>Injection presses, trim benches and packing lines.</p></header><ul><li><span>01.01</span>Light manufacturing &amp; assembly</li><li><span>01.02</span>Injection-molding machine tending</li><li><span>01.03</span>Plastic chair manufacturing</li><li><span>01.04</span>Trimming &amp; deflashing parts</li><li><span>01.05</span>Boxing &amp; palletizing finished goods</li><li><span>01.06</span>In-line quality inspection</li></ul></article><article class="st"><header><span class="mono code">ST-02</span><h3>Metal fabrication &amp; welding</h3><p>Cut, fit, weld, grind. Sparks included.</p></header><ul><li><span>02.01</span>Metal fabrication</li><li><span>02.02</span>Welding</li><li><span>02.03</span>Pipe cutting &amp; fitting</li><li><span>02.04</span>Grinding &amp; deburring</li><li><span>02.05</span>Part layout &amp; marking</li><li><span>02.06</span>Weld inspection &amp; cleanup</li></ul></article><article class="st"><header><span class="mono code">ST-03</span><h3>Auto repair &amp; service</h3><p>Bays, lifts and the underside of real cars.</p></header><ul><li><span>03.01</span>Oil &amp; filter change</li><li><span>03.02</span>Brake pad &amp; rotor replacement</li><li><span>03.03</span>Tire mounting &amp; balancing</li><li><span>03.04</span>Battery &amp; alternator swap</li><li><span>03.05</span>Suspension &amp; steering work</li><li><span>03.06</span>Diagnostics &amp; sensor replacement</li></ul></article><article class="st"><header><span class="mono code">ST-04</span><h3>CNC &amp; machine shop</h3><p>Setups, offsets and parts measured to the hundredth.</p></header><ul><li><span>04.01</span>Machine setup &amp; workholding</li><li><span>04.02</span>CNC loading &amp; tending</li><li><span>04.03</span>Manual lathe &amp; mill operation</li><li><span>04.04</span>Tool change &amp; offset setting</li><li><span>04.05</span>Part measurement &amp; gauging</li><li><span>04.06</span>Deburring &amp; finishing</li></ul></article><article class="st"><header><span class="mono code">ST-05</span><h3>Electronics assembly &amp; rework</h3><p>Small parts, steady hands, magnifier on.</p></header><ul><li><span>05.01</span>Through-hole soldering</li><li><span>05.02</span>Wire harness &amp; cable assembly</li><li><span>05.03</span>Connector crimping</li><li><span>05.04</span>PCB inspection &amp; rework</li><li><span>05.05</span>Final assembly &amp; screwdriving</li><li><span>05.06</span>Functional testing</li></ul></article><article class="st"><header><span class="mono code">ST-06</span><h3>Woodworking &amp; furniture</h3><p>Panels in, furniture out.</p></header><ul><li><span>06.01</span>Panel cutting &amp; ripping</li><li><span>06.02</span>Joinery &amp; frame assembly</li><li><span>06.03</span>Sanding &amp; surface prep</li><li><span>06.04</span>Edge banding &amp; trimming</li><li><span>06.05</span>Hardware &amp; fittings installation</li><li><span>06.06</span>Staining &amp; finishing</li></ul></article></div>
+  <p class="note">Need a task that isn't listed? Send it over. Most new tasks can be staffed inside the same shops.</p>
+</div></section>
+
+<section class="sec band" id="why"><video class="hv" autoplay muted loop playsinline poster="garage.jpg" aria-hidden="true"><source src="garage.mp4" type="video/mp4"></video><div class="wrap">
+  <div class="head"><span class="mono">MD-200 &middot; Why real shops</span><h2>The floor teaches things a lab forgets</h2><p class="lede">A demo cell is clean, well lit and forgiving. A factory isn't. If your robot is headed to the second one, it should learn there.</p></div>
+  <div class="why"><div class="card"><span class="mono">01</span><h3>Two hands, one job</h3><p>Holding a part with one hand while the other drives a tool. Bimanual coordination is in almost every clip.</p></div><div class="card"><span class="mono">02</span><h3>Tools that push back</h3><p>Torque on a wrench, drag on a grinder, the catch of a thread. Paired force data shows what video alone hides.</p></div><div class="card"><span class="mono">03</span><h3>Long jobs, strict order</h3><p>A brake job is forty steps. Skip one and the car comes back. Clips keep the whole sequence, start to finish.</p></div><div class="card"><span class="mono">04</span><h3>The fix, not just the task</h3><p>Flash that didn't trim, a weld that needs a second pass. We keep the recoveries, because robots need those most.</p></div><div class="card"><span class="mono">05</span><h3>Shop-floor conditions</h3><p>Glare off sheet metal, coolant mist, gloves, ear protection, a forklift crossing the frame.</p></div><div class="card"><span class="mono">06</span><h3>Machines with history</h3><p>Worn fixtures, taped handles and controls from three decades. The equipment a robot will actually meet.</p></div></div>
+</div></section>
+
+<section class="sec" id="signals"><div class="wrap">
+  <div class="head"><span class="mono">MD-300 &middot; Capture kit</span><h2>What the kit picks up</h2><p class="lede">Video on every job. The rest gets bolted on per project and runs on the same clock.</p></div>
+  <div class="tbl"><table><thead><tr><th>Ref</th><th>Signal</th><th>What it records</th><th>Status</th></tr></thead><tbody><tr><td>S-1</td><td class="nm">Egocentric video</td><td>Head-mounted, hands and tool in frame.</td><td><span class="tag on">Standard</span></td></tr><tr><td>S-2</td><td class="nm">Depth</td><td>Per-frame distance to parts, fixtures and machine surfaces.</td><td><span class="tag">Per project</span></td></tr><tr><td>S-3</td><td class="nm">Motion &amp; pose</td><td>IMU on head and wrists, through every step.</td><td><span class="tag">Per project</span></td></tr><tr><td>S-4</td><td class="nm">Force &amp; tactile</td><td>Grip pressure and contact force at fingers and palm.</td><td><span class="tag">Per project</span></td></tr><tr><td>S-5</td><td class="nm">Audio</td><td>Spindle pitch, a weld arc, the click of a part seating.</td><td><span class="tag">Per project</span></td></tr></tbody></table></div>
+  <p class="note">Resolution, frame rate and sensor setup are fixed in the project spec.</p>
+</div></section>
+
+<section class="sec alt" id="process"><div class="wrap">
+  <div class="head"><span class="mono">MD-400 &middot; Process</span><h2>How a run goes</h2><p class="lede">Four stops between your first call and your first batch.</p></div>
+  <div class="steps"><div class="step"><span class="n">01</span><h3>Spec</h3><p>You send tasks, hours, signals and a label schema. We reply with scope, timeline and price.</p></div><div class="step"><span class="n">02</span><h3>Staff</h3><p>We match shops and operators to the spec. Everyone signs consent and trains on the kit.</p></div><div class="step"><span class="n">03</span><h3>Capture</h3><p>Operators record their normal work. Each session is reviewed against the spec the same day.</p></div><div class="step"><span class="n">04</span><h3>Deliver</h3><p>Clips ship in batches as they pass QA, labeled to your schema, in your format.</p></div></div>
+</div></section>
+
+<section class="sec band" id="manifest"><div class="wrap">
+  <div class="head"><span class="mono">MD-500 &middot; Deliverable</span><h2>The shift report</h2><p class="lede">What you receive for every clip. The file below is an illustrative example, not client data.</p></div>
+  <div class="two">
+    <ul class="layers">
+      <li><span>L-1</span><div><h3>Step segmentation</h3><p>Each clip split into named steps with start and end times: tack, root pass, fill, cap.</p></div></li>
+      <li><span>L-2</span><div><h3>Hand pose</h3><p>Keypoints for both hands, tracked through gloves and partial occlusion.</p></div></li>
+      <li><span>L-3</span><div><h3>Tools &amp; parts</h3><p>Boxes and tracks for every tool and workpiece, with the moment of contact marked.</p></div></li>
+      <li><span>L-4</span><div><h3>Station layout</h3><p>Fixtures, machine surfaces and bins labeled for spatial context.</p></div></li>
+    </ul>
+    <div class="file" role="region" aria-label="Example clip manifest" tabindex="0">
+      <div class="bar mono"><span>clip_0412.json</span><span>example</span></div>
+<pre>{
+  <span class="k">"clip_id"</span>: <span class="s">"MD-02.02-0412"</span>,
+  <span class="k">"station"</span>: <span class="s">"ST-02 Metal fabrication &amp; welding"</span>,
+  <span class="k">"task"</span>: <span class="s">"Welding"</span>,
+  <span class="k">"process"</span>: <span class="s">"MIG, mild steel, fillet"</span>,
+  <span class="k">"country"</span>: <span class="s">"AR"</span>,
+  <span class="k">"duration_s"</span>: 2467,
+  <span class="k">"signals"</span>: [<span class="s">"video"</span>, <span class="s">"imu"</span>, <span class="s">"audio"</span>],
+  <span class="k">"ppe"</span>: [<span class="s">"helmet"</span>, <span class="s">"gloves"</span>, <span class="s">"apron"</span>],
+  <span class="k">"steps"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"fit and tack"</span>, <span class="k">"t"</span>: [0, 318] },
+    { <span class="k">"name"</span>: <span class="s">"root pass"</span>, <span class="k">"t"</span>: [318, 1104] },
+    { <span class="k">"name"</span>: <span class="s">"grind and inspect"</span>, <span class="k">"t"</span>: [1104, 1560] }
+  ],
+  <span class="k">"labels"</span>: [<span class="s">"steps"</span>, <span class="s">"hand_pose"</span>, <span class="s">"tools"</span>],
+  <span class="k">"faces_blurred"</span>: true,
+  <span class="k">"qa_status"</span>: <span class="s">"passed"</span>
+}</pre>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec" id="trust"><div class="wrap">
+  <div class="head"><span class="mono">MD-600 &middot; Safety &amp; consent</span><h2>House rules</h2><p class="lede">These are people's workplaces. We act like guests.</p></div>
+  <div class="trust"><div><span class="mono">Rule 1</span><h3>PPE or no recording</h3><p>Operators wear what the task requires. If it isn't safe, it isn't filmed.</p></div><div><span class="mono">Rule 2</span><h3>Signed consent, paid hours</h3><p>Every contributor signs before recording and is paid for the hours they deliver.</p></div><div><span class="mono">Rule 3</span><h3>Faces and IP blurred</h3><p>Bystanders, screens, drawings and part numbers are masked before delivery.</p></div><div><span class="mono">Rule 4</span><h3>Shop owner sign-off</h3><p>We record only where the owner has approved it in writing.</p></div></div>
+</div></section>
+
+<section class="sec alt" id="call"><div class="wrap two">
+  <div class="callc">
+    <span class="mono" style="color:var(--accent-ink)">MD-700 &middot; Book a call</span>
+    <h2>Come see how the floor works.</h2>
+    <p class="lede">Thirty minutes with the person who will run your project. Bring a spec or a rough idea and we'll work out the jobs, hours and signals.</p>
+    <dl>
+      <div><dt class="mono">With</dt><dd>Mia Cavanagh</dd></div>
+      <div><dt class="mono">Length</dt><dd>30 minutes, on Google Meet</dd></div>
+      <div><dt class="mono">Email</dt><dd>mia@vintti.com</dd></div>
+      <div><dt class="mono">Based in</dt><dd>Buenos Aires, Argentina</dd></div>
+    </dl>
+  </div>
+  <div class="cal">
+    <div class="bar"><strong style="font-weight:500">Schedule your call</strong><a class="btn hot" href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1wTz0WyAYqYgw9eTx9QUFBOTI5s5JSTQJ2RxJ37Sm0EcsBP3o1CsKztT9SFd1Fj2BkEry5Rb4b" target="_blank" rel="noopener">Open booking page</a></div>
+    <iframe src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1wTz0WyAYqYgw9eTx9QUFBOTI5s5JSTQJ2RxJ37Sm0EcsBP3o1CsKztT9SFd1Fj2BkEry5Rb4b?gv=true" title="Book a 30 minute call with Mill Data" loading="lazy"></iframe>
+  </div>
+</div></section>
+
+<section class="sec" id="faq"><div class="wrap">
+  <div class="head"><span class="mono">MD-800 &middot; FAQ</span><h2>Questions from the break room</h2></div>
+  <div class="faq"><details><summary><span>Q-01</span><b>Who does the recording?</b><i aria-hidden="true">+</i></summary><p>Working tradespeople: welders, machinists, press operators, assemblers and mechanics. They record jobs they already do, with our kit, after training and signing consent.</p></details><details><summary><span>Q-02</span><b>Can you record a task that is not in the catalog?</b><i aria-hidden="true">+</i></summary><p>Yes. The catalog is where we start. Send the task and we will tell you how fast we can staff it.</p></details><details><summary><span>Q-03</span><b>How do you check quality?</b><i aria-hidden="true">+</i></summary><p>Every session is reviewed against the spec: framing, hands in view, task completed, signals in sync. Clips that fail are recorded again, not delivered.</p></details><details><summary><span>Q-04</span><b>Can we start small?</b><i aria-hidden="true">+</i></summary><p>Most clients start with a pilot on one or two tasks, to test the data in their pipeline before committing to volume.</p></details><details><summary><span>Q-05</span><b>Who owns the data?</b><i aria-hidden="true">+</i></summary><p>Rights and exclusivity are set in each contract. Data collected for your project can be delivered for your exclusive use.</p></details><details><summary><span>Q-06</span><b>Which labels can you deliver?</b><i aria-hidden="true">+</i></summary><p>Step segmentation, hand pose, tool and part tracking and scene structure are the most common. We follow your schema and output format.</p></details></div>
+</div></section>
+
+<section class="sec alt" id="about"><div class="wrap about">
+  <div class="head" style="margin:0"><span class="mono">MD-900 &middot; About</span><h2>We staff factories for a living.</h2></div>
+  <div style="display:grid;gap:16px"><p>Mill Data is a product of Vintti, a staffing company that has placed Latin American talent with US and Canadian companies since 2022. We know how to find people who are good at a trade and keep them showing up. Mill Data is the same muscle, pointed at physical AI: skilled hands, real shops, cameras rolling.</p><p><a href="https://vintti.com" target="_blank" rel="noopener">Visit vintti.com &rarr;</a></p></div>
+</div></section>
+</main>
+<footer>
+  <div class="wrap">
+    <a class="brand wm" href="#top"><span class="sq">/</span>milldata</a>
+    <div class="links"><a href="#catalog">Tasks</a><a href="#signals">Signals</a><a href="#process">Process</a><a href="#call">Book a call</a><span>mia@vintti.com</span></div>
+    <div class="fine mono"><span>&copy; 2026 Vintti LLC</span><span>A product by Vintti</span><span>Buenos Aires, Argentina</span></div>
+  </div>
+  <div class="giant" aria-hidden="true">mill<span class="sl">/</span>data</div>
+</footer><script>(function(){var s=document.querySelector('.steps');if(!s)return;var st=[].slice.call(s.querySelectorAll('.step')),t=null,i=0;
+function tick(){st.forEach(function(e,j){e.classList.toggle('on',j===i)});i=(i+1)%st.length}
+function start(){if(t)return;s.classList.remove('run');void s.offsetWidth;s.classList.add('run');i=0;tick();t=setInterval(tick,2500)}
+function stop(){clearInterval(t);t=null}
+if(!('IntersectionObserver' in window)){start();return}
+new IntersectionObserver(function(e){e[0].isIntersecting?start():stop()},{threshold:.35}).observe(s)})();</script>
+<script>
+(function(){
+  var names=['lime'],def='lime',btns=[].slice.call(document.querySelectorAll('.styles button'));
+  function set(s){ if(names.indexOf(s)<0) s=def; if(s==='lime') document.documentElement.removeAttribute('data-style'); else document.documentElement.setAttribute('data-style',s); btns.forEach(function(x){x.setAttribute('aria-pressed',x.dataset.s===s)}); try{localStorage.setItem('milldata-color',s)}catch(e){} }
+  var init=(location.hash||'').slice(1); if(names.indexOf(init)<0){ try{init=localStorage.getItem('milldata-color')}catch(e){init=null} }
+  set(init||def);
+  btns.forEach(function(x){x.addEventListener('click',function(){set(x.dataset.s)})});
+})();
+</script>
+
+</body>
+</html>
